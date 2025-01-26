@@ -10,7 +10,7 @@ def get_container_metrics():
         stats = container.stats(stream=False)
 
         cpu_percent = calculate_cpu_percent(stats)
-        mem_usage_mb = stats["memory_stats"]["usage"] / (1024 * 1024)  # Перетворення в МБ
+        mem_usage_mb = stats["memory_stats"]["usage"] / (1024 * 1024)
         containers_stats.append(f"Container: {container.name} | CPU: {cpu_percent:.2f}% | RAM: {mem_usage_mb:.2f} MB\n")
     return containers_stats
 

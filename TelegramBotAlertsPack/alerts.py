@@ -4,11 +4,11 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 try:
     from MonitorPack.monitor import get_container_metrics as gcm
-except Exception:
-    print("Docker isn't working!")
+except Exception as e:
+    print("Docker isn't working!", str(e))
 
 try:
-    __API_TOKEN = '7808737665:AAFiu4y69YA8n8u28bvqOdm5E4MhEh342Yc'
+    __API_TOKEN = "7808737665:AAFiu4y69YA8n8u28bvqOdm5E4MhEh342Yc"
     bot = telebot.TeleBot(__API_TOKEN)
 except TypeError:
     print("The API-TOKEN hasn't been found!")
@@ -21,31 +21,34 @@ def main_keyboard():
     markup.add(btn1, btn2, btn3)
     return markup
 
-# Handle '/start' and '/help'
+# Handle '/start'
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.send_message(message.chat.id, "Hi! I'm the monitor container telegram bot", reply_markup=main_keyboard())
 
+# Handle '/help'
 @bot.message_handler(func=lambda message: message.text == "🔍 Help")
 def send_help(message):
-    bot.reply_to(message, "Help information: Use /status to get container stats, /clear to clear chat.")
+    bot.reply_to(message, "Help information: Use Status to get container stats, Clear to clear chat.")
 
+# Handle '/status'
 @bot.message_handler(func=lambda message: message.text == "📊 Status")
 def sen_containers_stats(message):
     count = 0
     while True:
         try:
-            str_list = "\n".join(gcm())
-            bot.reply_to(message, str_list)
+            container_stats_text = "\n".join(gcm())
+            bot.reply_to(message, container_stats_text)
             count += 1
             if count == 5:
-                bot.reply_to(message, "Ви отримали п'ять інформаційних контейнерів")
+                bot.reply_to(message, "You have received five information containers")
                 break
-        except Exception:
-            print("Exception:")
-            bot.reply_to(message, "Exception:")
+        except Exception as exc:
+            print("The docker is not running now!", str(exc))
+            bot.reply_to(message, "The docker is not running now!")
             break
 
+# Handle '/clear'
 @bot.message_handler(func=lambda message: message.text == "ℹ️ Clear")
 def clear_chat(message):
     chat_id = message.chat.id
@@ -68,6 +71,8 @@ def start_telegram_bot():
     while True:
         try:
             bot.infinity_polling(none_stop=True, timeout=60)
-        except Exception:
-            print("Exception")
+        except Exception as exc:
+            print("The docker is not running now!", str(exc))
             time.sleep(5)
+
+
