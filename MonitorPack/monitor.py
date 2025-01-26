@@ -4,6 +4,7 @@ import time
 client = docker.from_env()
 
 def get_container_metrics():
+
     containers = client.containers.list()
     for container in containers:
         stats = container.stats(stream=False)
@@ -24,3 +25,6 @@ def calculate_cpu_percent(stats):
 while True:
     get_container_metrics()
     time.sleep(10)
+
+
+
