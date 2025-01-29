@@ -8,9 +8,11 @@ except Exception as e:
     print("Docker isn't working!", str(e))
 
 try:
-    __API_TOKEN = "7808737665:AAFiu4y69YA8n8u28bvqOdm5E4MhEh342Yc"
-    bot = telebot.TeleBot(__API_TOKEN)
-except TypeError:
+    API_TOKEN = "7808737665:AAFiu4y69YA8n8u28bvqOdm5E4MhEh342Yc"
+    if not API_TOKEN:
+        raise ValueError("The API-TOKEN hasn't been found!")
+    bot = telebot.TeleBot(API_TOKEN)
+except ValueError:
     print("The API-TOKEN hasn't been found!")
 
 def main_keyboard():
