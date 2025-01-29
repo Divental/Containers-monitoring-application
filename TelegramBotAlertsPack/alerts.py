@@ -1,16 +1,26 @@
+import sys
+from dotenv import load_dotenv
+import os
 import time
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+
+if __name__ == "__main__":
+    print("\nThis file cannot be run as main!")
+    sys.exit()
 
 try:
     from MonitorPack.monitor import get_container_metrics as gcm
 except Exception as e:
     print("Docker isn't working!", str(e))
 
+# Load environment variables from the .env file
+load_dotenv()
+
 try:
-    API_TOKEN = "7808737665:AAFiu4y69YA8n8u28bvqOdm5E4MhEh342Yc"
+    API_TOKEN = os.getenv("API_TOKEN")
     if not API_TOKEN:
-        raise ValueError("The API-TOKEN hasn't been found!")
+        raise ValueError
     bot = telebot.TeleBot(API_TOKEN)
 except ValueError:
     print("The API-TOKEN hasn't been found!")
@@ -24,7 +34,7 @@ def main_keyboard():
     return markup
 
 # Handle '/start'
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start']) # The ‘bot’ highlighting occurs due to the possible failure to launch the bot when checking in the try/except block ^^^
 def send_welcome(message):
     bot.send_message(message.chat.id, "Hi! I'm the monitor container telegram bot", reply_markup=main_keyboard())
 
@@ -32,6 +42,10 @@ def send_welcome(message):
 @bot.message_handler(func=lambda message: message.text == "🔍 Help")
 def send_help(message):
     bot.reply_to(message, "Help information: Use Status to get container stats, Clear to clear chat.")
+
+@bot.message_handler(commands=['help'])
+def send_help_instruction(message):
+    send_help(message)
 
 # Handle '/status'
 @bot.message_handler(func=lambda message: message.text == "📊 Status")
@@ -50,6 +64,10 @@ def sen_containers_stats(message):
             bot.reply_to(message, "The docker is not running now!")
             break
 
+@bot.message_handler(commands=['status'])
+def send_status_instruction(message):
+    sen_containers_stats(message)
+
 # Handle '/clear'
 @bot.message_handler(func=lambda message: message.text == "ℹ️ Clear")
 def clear_chat(message):
@@ -60,8 +78,12 @@ def clear_chat(message):
         try:
             bot.delete_message(chat_id, msg_id)
             time.sleep(0.1)
-        except Exception:
+        except Exception as exc:
             pass
+
+@bot.message_handler(commands=['clear'])
+def send_clear_instruction(message):
+    clear_chat(message)
 
 # Handle all other messages with content_type 'text' (content_types defaults to ['text'])
 @bot.message_handler(func=lambda message: True)
