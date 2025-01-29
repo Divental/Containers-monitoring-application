@@ -15,8 +15,16 @@ def get_container_metrics():
         stats = container.stats(stream=False)
 
         cpu_percent = calculate_cpu_percent(stats)
+        image = container.image.tags[0] if container.image.tags else "N/A"
+        created = container.attrs['Created']
+        # ports = container.attrs['NetworkSettings']['Ports']
         mem_usage_mb = stats["memory_stats"]["usage"] / (1024 * 1024)
-        containers_stats.append(f"Container: {container.name} | CPU: {cpu_percent:.2f}% | RAM: {mem_usage_mb:.2f} MB\n")
+        containers_stats.append(f"~  Container name: {container.name} \n"
+                                f"~  Container status: {container.status} \n"
+                                f"~  Parent image: {image} \n"
+                                f"~  Time created: {created} \n"
+                                f"~  CPU load: {cpu_percent:.2f} % \n"
+                                f"~  RAM use: {mem_usage_mb:.2f} MB\n")
     return containers_stats
 
 def calculate_cpu_percent(stats):

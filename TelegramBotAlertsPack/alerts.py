@@ -43,6 +43,10 @@ def send_welcome(message):
 def send_help(message):
     bot.reply_to(message, "Help information: Use Status to get container stats, Clear to clear chat.")
 
+@bot.message_handler(commands=['help'])
+def send_help_instruction(message):
+    send_help(message)
+
 # Handle '/status'
 @bot.message_handler(func=lambda message: message.text == "📊 Status")
 def sen_containers_stats(message):
@@ -60,6 +64,10 @@ def sen_containers_stats(message):
             bot.reply_to(message, "The docker is not running now!")
             break
 
+@bot.message_handler(commands=['status'])
+def send_status_instruction(message):
+    sen_containers_stats(message)
+
 # Handle '/clear'
 @bot.message_handler(func=lambda message: message.text == "ℹ️ Clear")
 def clear_chat(message):
@@ -70,8 +78,12 @@ def clear_chat(message):
         try:
             bot.delete_message(chat_id, msg_id)
             time.sleep(0.1)
-        except Exception:
+        except Exception as exc:
             pass
+
+@bot.message_handler(commands=['clear'])
+def send_clear_instruction(message):
+    clear_chat(message)
 
 # Handle all other messages with content_type 'text' (content_types defaults to ['text'])
 @bot.message_handler(func=lambda message: True)
