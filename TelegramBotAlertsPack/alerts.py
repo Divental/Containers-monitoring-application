@@ -1,16 +1,26 @@
+import sys
+from dotenv import load_dotenv
+import os
 import time
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+
+if __name__ == "__main__":
+    print("\nThis file cannot be run as main!")
+    sys.exit()
 
 try:
     from MonitorPack.monitor import get_container_metrics as gcm
 except Exception as e:
     print("Docker isn't working!", str(e))
 
+# Load environment variables from the .env file
+load_dotenv()
+
 try:
-    API_TOKEN = "7808737665:AAFiu4y69YA8n8u28bvqOdm5E4MhEh342Yc"
+    API_TOKEN = os.getenv("API_TOKEN")
     if not API_TOKEN:
-        raise ValueError("The API-TOKEN hasn't been found!")
+        raise ValueError
     bot = telebot.TeleBot(API_TOKEN)
 except ValueError:
     print("The API-TOKEN hasn't been found!")
@@ -24,7 +34,7 @@ def main_keyboard():
     return markup
 
 # Handle '/start'
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start']) # The ‘bot’ highlighting occurs due to the possible failure to launch the bot when checking in the try/except block ^^^
 def send_welcome(message):
     bot.send_message(message.chat.id, "Hi! I'm the monitor container telegram bot", reply_markup=main_keyboard())
 

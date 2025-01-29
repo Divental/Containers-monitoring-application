@@ -1,4 +1,9 @@
 import docker
+import sys
+
+if __name__ == "__main__":
+    print("\nThis file cannot be run as main!")
+    sys.exit()
 
 client = docker.from_env()
 
