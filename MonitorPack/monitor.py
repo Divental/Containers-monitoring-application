@@ -1,7 +1,9 @@
+import LoggerPack.log_container as lc
 import docker
 import sys
 
 if __name__ == "__main__":
+    lc.logger.error("This file cannot be run as main!")
     print("\nThis file cannot be run as main!")
     sys.exit()
 

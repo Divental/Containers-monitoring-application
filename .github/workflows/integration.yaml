@@ -1,0 +1,4 @@
+name: Monitoring_containers_app
+
+on:
+  - push:

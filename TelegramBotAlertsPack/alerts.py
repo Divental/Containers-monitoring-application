@@ -1,4 +1,5 @@
 import sys
+import LoggerPack.log_container as lc
 from dotenv import load_dotenv
 import os
 import time
@@ -6,23 +7,31 @@ import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 if __name__ == "__main__":
+    lc.logger.error("This file cannot be run as main!")
     print("\nThis file cannot be run as main!")
     sys.exit()
 
 try:
     from MonitorPack.monitor import get_container_metrics as gcm
-except Exception as e:
-    print("Docker isn't working!", str(e))
+except FileNotFoundError as exc:
+    lc.logger.error("Docker isn't working!")
+    print("Docker isn't working!")
 
 # Load environment variables from the .env file
-load_dotenv()
+try:
+    load_dotenv()
+except NameError as ne:
+    lc.logger.error("Unable to load the environment!")
+    print("Unable to load the environment!")
+
 
 try:
     API_TOKEN = os.getenv("API_TOKEN")
     if not API_TOKEN:
         raise ValueError
     bot = telebot.TeleBot(API_TOKEN)
-except ValueError:
+except ValueError as ve:
+    lc.logger.error("The API-TOKEN hasn't been found!")
     print("The API-TOKEN hasn't been found!")
 
 def main_keyboard():
@@ -60,8 +69,8 @@ def sen_containers_stats(message):
                 bot.reply_to(message, "You have received five information containers")
                 break
         except Exception as exc:
-            print("The docker is not running now!", str(exc))
-            bot.reply_to(message, "The docker is not running now!")
+            lc.logger.error("The containers is not running now!")
+            bot.reply_to(message, "The docker containers is not running now!")
             break
 
 @bot.message_handler(commands=['status'])
@@ -92,11 +101,12 @@ def echo_message(message):
 
 # The start telegram bot function
 def start_telegram_bot():
-    while True:
+    # while True:
         try:
             bot.infinity_polling(none_stop=True, timeout=60)
         except Exception as exc:
-            print("The docker is not running now!", str(exc))
+            lc.logger.error("The telegram bot is not running now!")
+            print("The telegram bot is not running now!")
             time.sleep(5)
 
 
