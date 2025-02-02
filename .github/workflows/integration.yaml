@@ -4,6 +4,7 @@ on: # Defining a trigger
   push: # After the git push command (trigger)
     branches:
       - main
+      - develop
   pull_request: # After the pull request (trigger) in your own GitHub repository (Containers-monitoring-app)
 
 jobs:
