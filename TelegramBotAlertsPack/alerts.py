@@ -1,4 +1,6 @@
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor
 import LoggerPack.log_container as lc
 from dotenv import load_dotenv
 import os
@@ -6,16 +8,17 @@ import time
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
+try:
+    from MonitorPack.monitor import get_container_metrics as gcm
+    from MonitorPack.monitor import get_container_status_real_time as gcs
+except FileNotFoundError as exc:
+    lc.logger.error("Docker isn't working!")
+    print("Docker isn't working!")
+
 if __name__ == "__main__":
     lc.logger.error("This file cannot be run as main!")
     print("\nThis file cannot be run as main!")
     sys.exit()
-
-try:
-    from MonitorPack.monitor import get_container_metrics as gcm
-except FileNotFoundError as exc:
-    lc.logger.error("Docker isn't working!")
-    print("Docker isn't working!")
 
 # Load environment variables from the .env file
 try:
@@ -23,7 +26,6 @@ try:
 except NameError as ne:
     lc.logger.error("Unable to load the environment!")
     print("Unable to load the environment!")
-
 
 try:
     API_TOKEN = os.getenv("API_TOKEN")
@@ -36,21 +38,33 @@ except ValueError as ve:
 
 def main_keyboard():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    btn1 = KeyboardButton("🔍 Help")
-    btn2 = KeyboardButton("📊 Status")
-    btn3 = KeyboardButton("ℹ️ Clear")
-    markup.add(btn1, btn2, btn3)
+    btn1 = KeyboardButton("▶️ Start")
+    btn2 = KeyboardButton("🔍 Help")
+    btn3 = KeyboardButton("📊 Status")
+    btn4 = KeyboardButton("ℹ️ Clear")
+    markup.add(btn1, btn2, btn3, btn4)
     return markup
+
+executor = ThreadPoolExecutor(max_workers=1)
+
+def stream_function(message):
+    executor.submit(update_containers_status_real_time, message.chat.id)
+    # threading.Thread(target=update_containers_status_real_time, args=(message.chat.id,)).start()
 
 # Handle '/start'
 @bot.message_handler(commands=['start']) # The ‘bot’ highlighting occurs due to the possible failure to launch the bot when checking in the try/except block ^^^
-def send_welcome(message):
+def send_start(message):
     bot.send_message(message.chat.id, "Hi! I'm the monitor container telegram bot", reply_markup=main_keyboard())
+    stream_function(message)
+
+@bot.message_handler(func=lambda message: message.text == "▶️ Start")
+def send_start_instruction(message):
+    send_start(message)
 
 # Handle '/help'
 @bot.message_handler(func=lambda message: message.text == "🔍 Help")
 def send_help(message):
-    bot.reply_to(message, "Help information: Use Status to get container stats, Clear to clear chat.")
+    bot.send_message(message.chat.id, "Help information: Use Status to get container stats, Clear to clear chat.", reply_markup=main_keyboard())
 
 @bot.message_handler(commands=['help'])
 def send_help_instruction(message):
@@ -66,7 +80,7 @@ def sen_containers_stats(message):
             bot.reply_to(message, container_stats_text)
             count += 1
             if count == 5:
-                bot.reply_to(message, "You have received five information containers")
+                bot.send_message(message.chat.id, "You have received five information containers", reply_markup=main_keyboard())
                 break
         except Exception as exc:
             lc.logger.error("The containers is not running now!")
@@ -89,6 +103,7 @@ def clear_chat(message):
             time.sleep(0.1)
         except Exception as exc:
             pass
+    bot.send_message(message.chat.id, "The chat is cleared", reply_markup=main_keyboard())
 
 @bot.message_handler(commands=['clear'])
 def send_clear_instruction(message):
@@ -98,15 +113,23 @@ def send_clear_instruction(message):
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
     bot.reply_to(message, message.text)
+    bot.send_message(message.chat.id, "Make your choice", reply_markup=main_keyboard())
+
+def update_containers_status_real_time(chat_id):
+    while True:
+        status = gcs()
+        if status == 0:
+            continue
+        bot.send_message(chat_id, status)
+        time.sleep(5)
 
 # The start telegram bot function
 def start_telegram_bot():
-    # while True:
         try:
             bot.infinity_polling(none_stop=True, timeout=60)
         except Exception as exc:
             lc.logger.error("The telegram bot is not running now!")
             print("The telegram bot is not running now!")
-            time.sleep(5)
+            time.sleep(15)
 
 
