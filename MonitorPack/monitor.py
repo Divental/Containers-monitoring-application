@@ -43,7 +43,6 @@ def calculate_cpu_percent(stats):
 
 def get_container_status_real_time():
     containers = client.containers.list()
-
     for container in containers:
         stats = container.stats(stream=False)
         cpu_percent = calculate_cpu_percent(stats)

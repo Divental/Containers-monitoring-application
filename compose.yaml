@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   my-app:
-    image: devental/monitoring-container-app2
+    image: devental/containers-monitoring-app
     container_name: my-python-container
     restart: always
     environment:
