@@ -12,21 +12,21 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Copying a repository (code)
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3 # Improved mechanism for faster and more efficient container assembly.
+        uses: docker/setup-buildx-action@v3 # Improved mechanism for faster and more efficient container assembly
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3 # Automatic login to Docker Hub for further work
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v5 # Action of building and transferring an application
         with:
-          context: .
-          file: ./Dockerfile
-          push: true
+          context: . # Specifies that Docker should build the container from the current folder
+          file: ./Dockerfile # Uses a Docker file for building
+          push: true # Push container permission in Docker Hub
           tags: devental/containers-monitoring-app:latest

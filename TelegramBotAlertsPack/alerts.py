@@ -1,4 +1,5 @@
 import sys
+import threading
 import LoggerPack.log_container as lc
 from dotenv import load_dotenv
 import os
@@ -6,16 +7,17 @@ import time
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
+try:
+    from MonitorPack.monitor import get_container_metrics as gcm
+    from MonitorPack.monitor import get_container_status_real_time as gcs
+except FileNotFoundError as exc:
+    lc.logger.error("Docker isn't working!")
+    print("Docker isn't working!")
+
 if __name__ == "__main__":
     lc.logger.error("This file cannot be run as main!")
     print("\nThis file cannot be run as main!")
     sys.exit()
-
-try:
-    from MonitorPack.monitor import get_container_metrics as gcm
-except FileNotFoundError as exc:
-    lc.logger.error("Docker isn't working!")
-    print("Docker isn't working!")
 
 # Load environment variables from the .env file
 try:
@@ -23,7 +25,6 @@ try:
 except NameError as ne:
     lc.logger.error("Unable to load the environment!")
     print("Unable to load the environment!")
-
 
 try:
     API_TOKEN = os.getenv("API_TOKEN")
@@ -44,8 +45,13 @@ def main_keyboard():
 
 # Handle '/start'
 @bot.message_handler(commands=['start']) # The ‘bot’ highlighting occurs due to the possible failure to launch the bot when checking in the try/except block ^^^
-def send_welcome(message):
+def send_start(message):
     bot.send_message(message.chat.id, "Hi! I'm the monitor container telegram bot", reply_markup=main_keyboard())
+    threading.Thread(target=update_containers_status_real_time, args=(message.chat.id,)).start()
+
+@bot.message_handler(commands=['start'])
+def send_start_instruction(message):
+    send_start(message)
 
 # Handle '/help'
 @bot.message_handler(func=lambda message: message.text == "🔍 Help")
@@ -89,6 +95,7 @@ def clear_chat(message):
             time.sleep(0.1)
         except Exception as exc:
             pass
+    bot.send_message(message.chat.id, "The chat is cleared", reply_markup=main_keyboard())
 
 @bot.message_handler(commands=['clear'])
 def send_clear_instruction(message):
@@ -99,14 +106,22 @@ def send_clear_instruction(message):
 def echo_message(message):
     bot.reply_to(message, message.text)
 
+def update_containers_status_real_time(chat_id):
+    while True:
+        status = gcs()
+        if status == 0:
+            continue
+        bot.send_message(chat_id, status)
+        time.sleep(5)
+
 # The start telegram bot function
 def start_telegram_bot():
-    # while True:
         try:
             bot.infinity_polling(none_stop=True, timeout=60)
         except Exception as exc:
             lc.logger.error("The telegram bot is not running now!")
             print("The telegram bot is not running now!")
-            time.sleep(5)
+            time.sleep(15)
+            bot.polling(none_stop=True)
 
 
