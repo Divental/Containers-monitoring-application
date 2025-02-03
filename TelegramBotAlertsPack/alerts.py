@@ -1,8 +1,6 @@
 import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor
-import errno
-import docker.errors
 import LoggerPack.log_container as lc
 from dotenv import load_dotenv
 import os
