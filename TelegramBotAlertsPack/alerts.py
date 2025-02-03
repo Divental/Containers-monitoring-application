@@ -74,7 +74,7 @@ def send_help_instruction(message):
 @bot.message_handler(func=lambda message: message.text == "📊 Status")
 def sen_containers_stats(message):
     count = 0
-    while True:
+    for number in range(5):
         try:
             container_stats_text = "\n".join(gcm())
             bot.reply_to(message, container_stats_text)
