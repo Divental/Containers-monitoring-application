@@ -74,7 +74,7 @@ def send_help_instruction(message):
 @bot.message_handler(func=lambda message: message.text == "📊 Status")
 def sen_containers_stats(message):
     count = 0
-    while True:
+    for number in range(5):
         try:
             container_stats_text = "\n".join(gcm())
             bot.reply_to(message, container_stats_text)
@@ -115,13 +115,22 @@ def echo_message(message):
     bot.reply_to(message, message.text)
     bot.send_message(message.chat.id, "Make your choice", reply_markup=main_keyboard())
 
+# Function for parallel container checking to avoid resource overload
 def update_containers_status_real_time(chat_id):
+    count = 0
     while True:
         status = gcs()
         if status == 0:
+            count += 1
+            if count % 10 == 0:
+                print("Done:", count)
+            else:
+                print("Done:", count, end=" | ")
+            time.sleep(15)
             continue
         bot.send_message(chat_id, status)
-        time.sleep(5)
+        print("Done: ", count)
+        time.sleep(15)
 
 # The start telegram bot function
 def start_telegram_bot():
@@ -129,7 +138,6 @@ def start_telegram_bot():
             bot.infinity_polling(none_stop=True, timeout=60)
         except Exception as exc:
             lc.logger.error("The telegram bot is not running now!")
-            print("The telegram bot is not running now!")
             time.sleep(15)
 
 

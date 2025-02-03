@@ -54,7 +54,7 @@ def get_container_status_real_time():
         if float(mem_usage_mb) > 500.00:
             return f"The container {container.name} uses 500 MB of the available RAM resources on the host"
 
-        return 0
+    return 0
 
 
 
