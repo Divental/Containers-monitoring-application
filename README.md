@@ -30,7 +30,7 @@ Container Monitoring is an automated system for tracking resource usage in conta
 * Python 3.7 with pip;
 * Prometheus and Grafana set up.
 
-## Setup
+## Set up
 
 1. Clone the repository:
 ```
@@ -41,8 +41,31 @@ cd container-monitoring
 ```
 pip install -r requirements.txt
 ```
-3. Start the monitoring service:
+3. Setup telegram bot:
+   * Step 1: In the search bar
+     ```
+     BotFather
+     ```
+   * Step 2: In the text line
+     ```
+     /start
+     /newbot
+     ```
+   * Step 3: Create an individual bot name, and your username must end with 'bot'
+     ```
+     Example: yourcoolbot
+     ```
+   * Step 4: Save your personal Telegram API key
+     ```
+     Example: 1234567890:ABCDEF...
+     ```
+   * Step 5: Create .env file in the 'container-monitoring' directory and put the key there
+     ```
+     Example: API_TOKEN=1234567890:ABCDEF...
+     ```
+4. Start the monitoring service:
 ```
+cd .\container-monitoring\
 python main.py
 ```
 
