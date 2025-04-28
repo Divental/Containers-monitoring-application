@@ -1,10 +1,14 @@
+version: '3'
 services:
+
   my-app:
-    image: devental/containers-monitoring-app
+    image: containers-monitoring-app
     container_name: my-python-container
     restart: always
     environment:
       - DOCKER_HOST=tcp://host.docker.internal:2375
+    depends_on:
+      - prometheus
 
   prometheus:
     image: prom/prometheus:latest
@@ -12,7 +16,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - D:/ContainerMonitoringProgram/container-monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     restart: always
@@ -34,10 +38,14 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
       - grafana-data:/var/lib/grafana
+    env_file:
+      - D:/ContainerMonitoringProgram/container-monitoring/.env
+
     restart: always
 
 volumes:
   grafana-data:
+
