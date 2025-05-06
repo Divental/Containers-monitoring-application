@@ -7,7 +7,7 @@ Container Monitoring is an automated system for tracking resource usage in conta
 ## Features
 
 * Metrics Collection: Gathers CPU, RAM, disk, and network usage from running containers;
-* Alerts & Notifications: Sends alerts via Telegram when resources exceed predefined limits;
+* Alerts & Notifications: Sends alerts via Telegram and Slack when resources exceed predefined limits;
 * Visualization: Uses Grafana and Prometheus for real-time monitoring and dashboarding;
 * Automation & Integration:
     * Uses systemd for automatic startup;
@@ -16,11 +16,11 @@ Container Monitoring is an automated system for tracking resource usage in conta
 
 ## Tech Stack
 
-* Programming Language: Python (psutil, docker-py);
+* Programming Language: Python;
 * Containerization: Docker;
 * Monitoring & Logging: Prometheus, Grafana, Elastic Stack;
 * Automation & CI/CD: systemd, GitHub Actions;
-* Messaging: Telegram API.
+* Messaging: Telegram API, Slack API.
 
 ## Installation
 
@@ -42,6 +42,7 @@ cd container-monitoring
 pip install -r requirements.txt
 ```
 3. Setup telegram bot:
+   
    * Step 1: In the search bar
      ```
      BotFather
@@ -63,7 +64,8 @@ pip install -r requirements.txt
      ```
      Example: API_TOKEN=1234567890:ABCDEF...
      ```
-4. Start the monitoring service:
+4. Start the docker service:
+5. Start the monitoring service:
 ```
 cd .\container-monitoring\
 python main.py
