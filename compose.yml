@@ -28,8 +28,14 @@ services:
     container_name: cadvisor
     ports:
       - "8080:8080"
+    #volumes:
+    #  - //var/run/docker.sock:/var/run/docker.sock:ro
     volumes:
-      - //var/run/docker.sock:/var/run/docker.sock:ro
+    #  - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    #  - /dev/disk/:/dev/disk:ro
     restart: always
     depends_on:
       - grafana
@@ -43,7 +49,6 @@ services:
       - grafana-data:/var/lib/grafana
     env_file:
       - D:/ContainerMonitoringProgram/container-monitoring/.env
-
     restart: always
 
 volumes:
